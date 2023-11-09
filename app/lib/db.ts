@@ -1,4 +1,5 @@
-import postgres from "postgres";
+// import postgres from "postgres";
+const postgres = require("postgres");
 
 const sql = postgres();
 

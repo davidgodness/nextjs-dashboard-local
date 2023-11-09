@@ -3,6 +3,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { lusitana } from "@/app/ui/fonts";
 import { fetchLatestInvoices } from "@/app/lib/data";
+import { LatestInvoiceRaw } from "@/app/lib/definitions";
 export default async function LatestInvoices() {
   const latestInvoices = await fetchLatestInvoices();
 
@@ -15,7 +16,7 @@ export default async function LatestInvoices() {
         {/* NOTE: comment in this code when you get to this point in the course */}
 
         <div className="bg-white px-6">
-          {latestInvoices.map((invoice, i) => {
+          {latestInvoices.map((invoice: LatestInvoiceRaw, i: number) => {
             return (
               <div
                 key={invoice.id}

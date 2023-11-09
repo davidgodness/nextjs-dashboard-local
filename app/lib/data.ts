@@ -21,7 +21,7 @@ export async function fetchRevenue() {
     // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const data = await sql`SELECT * FROM revenue`;
+    const data = await sql<Revenue>`SELECT * FROM revenue`;
 
     // console.log('Data fetch complete after 3 seconds.');
 
@@ -34,14 +34,14 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    const data = await sql`
+    const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
       LIMIT 5`;
 
-    const latestInvoices = data.map((invoice) => ({
+    const latestInvoices = data.map((invoice: LatestInvoiceRaw) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
@@ -95,7 +95,7 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql`
+    const invoices = await sql<InvoicesTable>`
       SELECT
         invoices.id,
         invoices.amount,
@@ -146,7 +146,7 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await sql`
+    const data = await sql<InvoiceForm>`
       SELECT
         invoices.id,
         invoices.customer_id,
@@ -156,7 +156,7 @@ export async function fetchInvoiceById(id: string) {
       WHERE invoices.id = ${id};
     `;
 
-    const invoice = data.map((invoice) => ({
+    const invoice = data.map((invoice: InvoiceForm) => ({
       ...invoice,
       // Convert amount from cents to dollars
       amount: invoice.amount / 100,
@@ -170,7 +170,7 @@ export async function fetchInvoiceById(id: string) {
 
 export async function fetchCustomers() {
   try {
-    const data = await sql`
+    const data = await sql<CustomerField>`
       SELECT
         id,
         name
@@ -188,7 +188,7 @@ export async function fetchCustomers() {
 
 export async function fetchFilteredCustomers(query: string) {
   try {
-    const data = await sql`
+    const data = await sql<CustomersTable>`
 		SELECT
 		  customers.id,
 		  customers.name,
@@ -206,7 +206,7 @@ export async function fetchFilteredCustomers(query: string) {
 		ORDER BY customers.name ASC
 	  `;
 
-    const customers = data.map((customer) => ({
+    const customers = data.map((customer: CustomersTable) => ({
       ...customer,
       total_pending: formatCurrency(customer.total_pending),
       total_paid: formatCurrency(customer.total_paid),
@@ -222,7 +222,7 @@ export async function fetchFilteredCustomers(query: string) {
 export async function getUser(email: string) {
   try {
     const user = await sql`SELECT * from USERS where email=${email}`;
-    return user;
+    return user[0] as User;
   } catch (error) {
     console.error("Failed to fetch user:", error);
     throw new Error("Failed to fetch user.");
